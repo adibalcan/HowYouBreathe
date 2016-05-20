@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HowYouBreathe</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+      #selectbox{
+      	background-color: white;
+      	position: absolute;
+      	top:20px;
+      	right:20px;
+      	padding: 8px;
+      	border-radius:2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="selectbox">
+    	map:
+    	<select id="heatmap" onchange="changeHeatmap()">
+    		<option value="boli">Diseases</option>
+    		<option value="populatie">Population</option>
+    	</select> 
+    </div>
+    <script>
+      var map, heatmap, dataIndex=0, t, t2, drawStatus = false, geocoder, points = [], selectedHeatmap = 'boli';
+      var data = [  
+   {  
+      "judet":"ALBA",
+      "populatie":342376,
+      "boli":147718,
+      "location":{  
+         "lat":46.1558924,
+         "lng":23.555612099999962
+      }
+   },
+   {  
+      "judet":"ARAD",
+      "populatie":430629,
+      "boli":180311,
+      "location":{  
+         "lat":46.1865606,
+         "lng":21.312267700000007
+      }
+   },
+   {  
+      "judet":"ARGES",
+      "populatie":612431,
+      "boli":240369,
+      "location":{  
+         "lat":45.0722527,
+         "lng":24.81427259999998
+      }
+   },
+   {  
+      "judet":"Bucuresti",
+      "populatie":1883425,
+      "boli":363343,
+      "location":{  
+         "lat":44.4267674,
+         "lng":26.102538399999958
+      }
+   },
+   {  
+      "judet":"BACAU",
+      "populatie":616168,
+      "boli":82878,
+      "location":{  
+         "lat":46.5670437,
+         "lng":26.91457479999997
+      }
+   },
+   {  
+      "judet":"OLT",
+      "populatie":436400,
+      "boli":121081,
+      "location":{  
+         "lat":44.200797,
+         "lng":24.502298099999962
+      }
+   },
+   {  
+      "judet":"TULCEA",
+      "populatie":213083,
+      "boli":40282,
+      "location":{  
+         "lat":45.1716165,
+         "lng":28.79144389999999
+      }
+   },
+   {  
+      "judet":"VASLUI",
+      "populatie":395499,
+      "boli":96780,
+      "location":{  
+         "lat":46.6406915,
+         "lng":27.727646800000002
+      }
+   },
+   {  
+      "judet":"BIHOR",
+      "populatie":575398,
+      "boli":250200,
+      "location":{  
+         "lat":47.01575159999999,
+         "lng":22.172266000000036
+      }
+   },
+   {  
+      "judet":"BISTRITA-NASAUD",
+      "populatie":286225,
+      "boli":101889,
+      "location":{  
+         "lat":47.2486107,
+         "lng":24.532281399999988
+      }
+   },
+   {  
+      "judet":"BOTOSANI",
+      "populatie":412626,
+      "boli":94606,
+      "location":{  
+         "lat":47.7406537,
+         "lng":26.66581270000006
+      }
+   },
+   {  
+      "judet":"BRAILA",
+      "populatie":321212,
+      "boli":69830,
+      "location":{  
+         "lat":45.2652463,
+         "lng":27.959471399999984
+      }
+   },
+   {  
+      "judet":"BRASOV",
+      "populatie":549217,
+      "boli":140218,
+      "location":{  
+         "lat":45.6579755,
+         "lng":25.601197700000057
+      }
+   },
+   {  
+      "judet":"BUZAU",
+      "populatie":451069,
+      "boli":136600,
+      "location":{  
+         "lat":45.1371109,
+         "lng":26.817112199999997
+      }
+   },
+   {  
+      "judet":"CALARASI",
+      "populatie":306691,
+      "boli":37448,
+      "location":{  
+         "lat":44.2085144,
+         "lng":27.313743899999963
+      }
+   },
+   {  
+      "judet":"CARAS-SEVERIN",
+      "populatie":295579,
+      "boli":42391,
+      "location":{  
+         "lat":45.1139646,
+         "lng":22.074099299999943
+      }
+   },
+   {  
+      "judet":"CLUJ",
+      "populatie":691106,
+      "boli":286268,
+      "location":{  
+         "lat":46.7712101,
+         "lng":23.623635299999933
+      }
+   },
+   {  
+      "judet":"CONSTANTA",
+      "populatie":684082,
+      "boli":117827,
+      "location":{  
+         "lat":44.1598013,
+         "lng":28.63481379999996
+      }
+   },
+   {  
+      "judet":"COVASNA",
+      "populatie":210177,
+      "boli":138964,
+      "location":{  
+         "lat":45.84727669999999,
+         "lng":26.178345199999967
+      }
+   },
+   {  
+      "judet":"DAMBOVITA",
+      "populatie":518745,
+      "boli":75228,
+      "location":{  
+         "lat":44.9289893,
+         "lng":25.425385000000006
+      }
+   },
+   {  
+      "judet":"DOLJ",
+      "populatie":660544,
+      "boli":148195,
+      "location":{  
+         "lat":44.1623022,
+         "lng":23.632505400000014
+      }
+   },
+   {  
+      "judet":"GALATI",
+      "populatie":536167,
+      "boli":129278,
+      "location":{  
+         "lat":45.4353208,
+         "lng":28.007994499999995
+      }
+   },
+   {  
+      "judet":"GIURGIU",
+      "populatie":281422,
+      "boli":68094,
+      "location":{  
+         "lat":44.1742096,
+         "lng":25.940814300000056
+      }
+   },
+   {  
+      "judet":"GORJ",
+      "populatie":341594,
+      "boli":198245,
+      "location":{  
+         "lat":44.94855949999999,
+         "lng":23.242707900000028
+      }
+   },
+   {  
+      "judet":"HARGHITA",
+      "populatie":310867,
+      "boli":129549,
+      "location":{  
+         "lat":46.4928507,
+         "lng":25.64566960000002
+      }
+   },
+   {  
+      "judet":"HUNEDOARA",
+      "populatie":418565,
+      "boli":196354,
+      "location":{  
+         "lat":45.7678128,
+         "lng":22.907233099999985
+      }
+   },
+   {  
+      "judet":"IALOMITA",
+      "populatie":274148,
+      "boli":89517,
+      "location":{  
+         "lat":44.603133,
+         "lng":27.378991400000018
+      }
+   },
+   {  
+      "judet":"IASI",
+      "populatie":772348,
+      "boli":305998,
+      "location":{  
+         "lat":47.1584549,
+         "lng":27.601441799999975
+      }
+   },
+   {  
+      "judet":"ILFOV",
+      "populatie":388738,
+      "boli":135331,
+      "location":{  
+         "lat":44.535548,
+         "lng":26.23248860000001
+      }
+   },
+   {  
+      "judet":"MARAMURES",
+      "populatie":478659,
+      "boli":143035,
+      "location":{  
+         "lat":47.6737598,
+         "lng":23.745628500000066
+      }
+   },
+   {  
+      "judet":"MEHEDINTI",
+      "populatie":265390,
+      "boli":46809,
+      "location":{  
+         "lat":44.5515053,
+         "lng":22.904415700000072
+      }
+   },
+   {  
+      "judet":"MURES",
+      "populatie":550846,
+      "boli":257002,
+      "location":{  
+         "lat":46.5569904,
+         "lng":24.672321499999953
+      }
+   },
+   {  
+      "judet":"NEAMT",
+      "populatie":470766,
+      "boli":161645,
+      "location":{  
+         "lat":46.9758685,
+         "lng":26.38187640000001
+      }
+   },
+   {  
+      "judet":"PRAHOVA",
+      "populatie":762886,
+      "boli":207184,
+      "location":{  
+         "lat":45.08919059999999,
+         "lng":26.082931199999962
+      }
+   },
+   {  
+      "judet":"SALAJ",
+      "populatie":224384,
+      "boli":96664,
+      "location":{  
+         "lat":47.2090813,
+         "lng":23.212190100000043
+      }
+   },
+   {  
+      "judet":"SATU MARE",
+      "populatie":344360,
+      "boli":60481,
+      "location":{  
+         "lat":47.8016702,
+         "lng":22.857592599999975
+      }
+   },
+   {  
+      "judet":"SIBIU",
+      "populatie":397322,
+      "boli":230973,
+      "location":{  
+         "lat":45.9269106,
+         "lng":24.225480699999935
+      }
+   },
+   {  
+      "judet":"SUCEAVA",
+      "populatie":634810,
+      "boli":162307,
+      "location":{  
+         "lat":47.6634521,
+         "lng":26.273230199999944
+      }
+   },
+   {  
+      "judet":"TELEORMAN",
+      "populatie":380123,
+      "boli":45425,
+      "location":{  
+         "lat":44.0160491,
+         "lng":25.29866279999999
+      }
+   },
+   {  
+      "judet":"TIMIS",
+      "populatie":683540,
+      "boli":334811,
+      "location":{  
+         "lat":45.8138902,
+         "lng":21.333105499999988
+      }
+   },
+   {  
+      "judet":"VALCEA",
+      "populatie":371714,
+      "boli":123340,
+      "location":{  
+         "lat":45.07980509999999,
+         "lng":24.083528200000046
+      }
+   },
+   {  
+      "judet":"VRANCEA",
+      "populatie":340310,
+      "boli":80040,
+      "location":{  
+         "lat":45.81348759999999,
+         "lng":27.065753099999938
+      }
+   }
+];
+
+
+      function geocodeAddress(geocoder, address) {
+      	if(address['location'] !== undefined){
+      		points.push({'location':new google.maps.LatLng(address['location']), 'weight':address[selectedHeatmap]})
+      	}else{
+	        geocoder.geocode({'address': address.judet + ' County, Romania'}, function(results, status) {
+	          if (status === google.maps.GeocoderStatus.OK) {
+	            address['location'] = new google.maps.LatLng(results[0].geometry.location.lat(), results[0].geometry.location.lng())
+	            points.push({'location':address['location'], 'weight':address[selectedHeatmap]})      
+	          }else{
+	          	console.warn(address)
+	          }
+	      	})
+    	}
+    	// console.log(points)
+      }
+
+      function drawData(){
+      	if(!drawStatus){
+	        if(points.length > 0){
+	        	console.log(points.length)
+	        	var maxIntensity = 500000
+
+	        	if(selectedHeatmap == 'boli'){
+	        		maxIntensity = 150000 
+	        	}else{
+	        		maxIntensity = 500000
+	        	}
+
+	        	if(heatmap){
+	        		heatmap.setMap(null);
+	        	}
+	        	map.overlayMapTypes.setAt( 0, null);
+
+	      		heatmap = new google.maps.visualization.HeatmapLayer({
+	    			data: points,
+	    			map: map,
+	    			radius: 90,
+	    			maxIntensity:maxIntensity
+	  			});
+	  			drawStatus = true;
+	      	}else{
+	      		console.warn('no points')
+	      	}
+      	}
+      }
+
+      function changeHeatmap2(){
+      	points = [];
+      	selectedHeatmap = document.getElementById('heatmap').value;
+      	data.map(function(e){
+        	geocodeAddress(geocoder, e)        	
+        });
+      	drawStatus = false;
+      	heatmap.setMap(null);
+      	dataIndex=0;      	
+      }  
+
+      function changeHeatmap(){
+      	t2 = setTimeout(changeHeatmap2, 500)    	
+      }     
+      
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 45.9432, lng: 24.9668},
+          zoom: 7
+        });
+        
+        geocoder = new google.maps.Geocoder();
+        // selectedHeatmap = document.getElementById('heatmap').value;
+
+        data.map(function(e){
+        	geocodeAddress(geocoder, e)        	
+        });
+
+        // Draw heatmap when map is ready
+        t = setInterval(drawData, 1000)
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXbb0ns0xTPF2Mr-Jugo1rgnxM56WotGE&callback=initMap&libraries=visualization"
+    async defer></script>
+  </body>
+</html>
